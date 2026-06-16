@@ -196,7 +196,7 @@
       <div class="svc">
         <div class="ic">✂️</div>
         <h3><span data-zh>视频剪辑</span><span data-en>Video Editing</span></h3>
-        <p><span data-zh>你提供素材，我们剪辑：卡点、字幕、调色、配乐，输出多平台尺寸。1 分钟以内 $149/条；超过按 $149/成品分钟计。</span><span data-en>You send footage, we edit — cuts, captions, color, music, multi‑platform exports. Up to 1 min $149/clip; longer at $149/finished min.</span></p>
+        <p><span data-zh>你提供素材，我们剪辑：卡点、字幕、调色、配乐，输出多平台尺寸。1 分钟以内 $149/条；超过按 $149/成品分钟。5 条 9 折 · 10 条 8 折，长期可包月（详询）。</span><span data-en>You send footage, we edit — cuts, captions, color, music, multi‑platform exports. Up to 1 min $149/clip; longer at $149/finished min. 5 clips 10% off · 10 clips 20% off; monthly plans available.</span></p>
         <div class="svc-price"><span data-zh>$149 / 条（≤1分钟）</span><span data-en>$149 / clip (≤1 min)</span></div>
         <button class="svc-buy" onclick="goCheckout('edit')"><span data-zh>立即购买</span><span data-en>Buy now</span></button>
       </div>
@@ -279,11 +279,12 @@
         <h3><span data-zh>订单摘要</span><span data-en>Order summary</span></h3>
         <div class="co-line"><span id="co_sname">产品摄影（白底）</span><span id="co_sprice">$200</span></div>
         <div class="co-line"><span><span data-zh>数量</span><span data-en>Qty</span></span><span id="co_sqty">×1</span></div>
+        <div class="co-line" id="co_discrow" style="display:none;color:#16a34a"><span><span data-zh>数量折扣</span><span data-en>Volume discount</span></span><span id="co_disc">-$0</span></div>
         <div class="co-total"><span><span data-zh>合计</span><span data-en>Total</span></span><span id="co_total">$200</span></div>
         <button class="btn btn-pay co-paybtn" onclick="payNow('paypal')"><span data-zh>用 PayPal 支付</span><span data-en>Pay with PayPal</span></button>
         <button class="btn btn-wf co-paybtn" onclick="payNow('worldfirst')"><span data-zh>用 万里汇 支付</span><span data-en>Pay with WorldFirst</span></button>
         <button class="co-ask" onclick="askOnly()"><span data-zh>暂不付款，先咨询 →</span><span data-en>Just ask first →</span></button>
-        <p class="co-note"><span data-zh>💳 PayPal 支持 Visa / Mastercard 等信用卡，无需注册账户<br>🔒 提交后我们 24h 内联系你确认拍摄细节</span><span data-en>💳 Pay by Visa / Mastercard via PayPal — no account needed<br>🔒 We'll confirm details within 24h</span></p>
+        <p class="co-note"><span data-zh>🎁 5 件 9 折 · 10 件 8 折（数量越多越便宜）<br>💳 PayPal 支持 Visa / Mastercard 等信用卡，无需注册账户<br>🔒 提交后我们 24h 内联系你确认拍摄细节</span><span data-en>🎁 5+ items 10% off · 10+ items 20% off<br>💳 Pay by Visa / Mastercard via PayPal — no account needed<br>🔒 We'll confirm details within 24h</span></p>
       </aside>
     </div>
   </div>
@@ -328,14 +329,19 @@
   }
   function curKey(){return document.getElementById('co_service').value;}
   function curQty(){return Math.max(1,parseInt(document.getElementById('co_qty').value||'1',10));}
-  function curTotal(){return PRICES[curKey()].p*curQty();}
+  function discRate(){var q=curQty();return q>=10?0.20:(q>=5?0.10:0);}  // 5件9折 / 10件8折
+  function curTotal(){var sub=PRICES[curKey()].p*curQty();return Math.round(sub*(1-discRate()));}
   function updateOrder(){
     var en=document.body.classList.contains('en');
     var it=PRICES[curKey()],qty=curQty();
+    var sub=it.p*qty,rate=discRate(),disc=Math.round(sub*rate);
     document.getElementById('co_sname').textContent=en?it.en:it.zh;
     document.getElementById('co_sprice').textContent='$'+it.p;
     document.getElementById('co_sqty').textContent='×'+qty;
-    document.getElementById('co_total').textContent='$'+(it.p*qty);
+    var row=document.getElementById('co_discrow');
+    if(rate>0){row.style.display='flex';document.getElementById('co_disc').textContent='-$'+disc+' ('+Math.round(rate*100)+'% off)';}
+    else{row.style.display='none';}
+    document.getElementById('co_total').textContent='$'+(sub-disc);
   }
   function goCheckout(key){
     if(key)document.getElementById('co_service').value=key;
